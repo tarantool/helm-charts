@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  cert-manager-webhook-vkcloud:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2021-12-03T16:16:01.802772+03:00"
+    description: A Helm chart for Kubernetes
+    digest: ef99da7089a2f54f2d5d64f90930652ed657b1bd57dc92df434170bb6741b7af
+    name: cert-manager-webhook-vkcloud
+    urls:
+    - https://github.com/tarantool/cert-manager-webhook-vkcloud/releases/download/cert-manager-webhook-vkcloud-0.1.0/cert-manager-webhook-vkcloud-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-12-03T16:16:01.802782+03:00"
