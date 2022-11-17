@@ -1,0 +1,425 @@
+# Override chart.name template
+nameOverride: ""
+
+# Override chart.fullname template
+fullnameOverride: ""
+
+# Override Kubernetes version
+kubeVersion: ""
+
+# Kubernetes cluster domain name
+clusterDomain: cluster.local
+
+# Labels to add to all deployed objects
+labels: {}
+
+# Annotations to add to all deployed objects
+annotations: {}
+
+# The default storage class overrides by tarantool.roles.*.persistence.storageClass
+storageClass: ""
+
+# Main config of cartridge installation
+tarantool:
+  # The default cartridge image, overrides by tarantool.roles.*.image
+  image:
+    repository: tarantool/tarantool-operator-examples-kv
+    tag: 0.0.7
+    pullPolicy: IfNotPresent
+  runDir: /var/run/tarantool
+  workDir: /var/lib/tarantool
+  # Count of vshard buckets, Immutable field, cannot be changed after cartridge was bootstrapped
+  # see: https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/
+  bucketCount: 30000
+  # The default tarantool memtx memory value, overrides by tarantool.roles.*.memtxMemory
+  # see: https://www.tarantool.io/ru/doc/latest/reference/configuration/#cfg-storage-memtx-memory
+  memtxMemory: "128M"
+  # Option responsible for retrying Cartridge «Can’t ping myself» error on startup, overrides by tarantool.roles.*.  probeUriTimeout
+  # see: https://www.tarantool.io/ru/doc/latest/book/cartridge/CHANGELOG/#id41
+  probeUriTimeout: 60
+  # The default minimum ready seconds for all statefulsets, overrides by tarantool.roles.*.minReadySeconds
+  # see: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#minimum-ready-seconds
+  minReadySeconds: 0
+  # Configures http and tcp/upd port of tarantool app, overrides by tarantool.roles.*.  ports
+  ports:
+    http: 8081
+    tarantool: 3301
+  # The default cartridge containers' resources, overrides by tarantool.roles.*.resources
+  # see: https://kubernetes.io/docs/user-guide/compute-resources/
+  resources: {}
+  # Schemaless object represents cartridge application cluster wide config
+  config: {}
+  # Tarantool auth settings
+  # see: https://www.tarantool.io/doc/latest/book/box/authentication/
+  auth:
+    # Tarantool username
+    user: "admin"
+    # Tarantool password (cluster cookie) will be generated if empty
+    password: ""
+  # Additional annotations for all pods
+  podAnnotations: {}
+  # The default value of terminationGracePeriodSeconds for all cartridge containers, overrides by tarantool.roles.*.terminationGracePeriodSeconds
+  # see: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-termination
+  terminationGracePeriodSeconds: 30
+  # Extra volume claim templates for each statefulset of all roles
+  extraVolumeClaimTemplates: []
+  # Extra volumes for each pod of each statefulset of all roles
+  extraVolumes: []
+  # Extra volume mounts for each cartridge container of each statefulset of all roles
+  extraVolumeMounts: []
+  # Default security context for all pod, overrides by tarantool.roles.*.securityContext
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  securityContext:
+    enabled: true
+    fsGroup: 1200
+  # Add init containers to all pods.
+  # Example:
+  # initContainers:
+  #   - name: your-image-name
+  #     image: your-image
+  #     imagePullPolicy: Always
+  #     ports:
+  #       - name: portname
+  #         containerPort: 1234
+  initContainers: []
+  # Extra options for cartridge containers' liveness probe, overrides by tarantool.roles.*.livenessProbe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  livenessProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 5
+  # Extra options for cartridge containers' readiness probe, overrides by tarantool.roles.*.readinessProbe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 5
+  # Extra options for cartridge containers' startupProbe probe, overrides by tarantool.roles.*.startupProbe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 5
+  # Custom livenessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customLivenessProbe
+  customLivenessProbe: {}
+  # Custom readinessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customReadinessProbe
+  customReadinessProbe: {}
+  # Custom startupProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customStartupProbe
+  customStartupProbe: {}
+  # Additional environment values for all cartridge containers
+  # extraEnv:
+  #   - name: MY_ENV_VAR
+  #     value: env_var_value
+  extraEnv: []
+  # Additional extraFrom values for all cartridge containers, will be merged with tarantool.roles.*.  extraEnvFrom
+  extraEnvFrom: []
+  # ServiceAccount name, overrides by tarantool.roles.*.serviceAccountName
+  serviceAccountName: false
+  # Automount service account token for the application service account, overrides by tarantool.roles.*.automountServiceAccountToken
+  automountServiceAccountToken: false
+  # Restart policy for application pods, overrides by tarantool.roles.*.restartPolicy
+  restartPolicy: Always
+  # Name of the runtime class to be used by pod(s), overrides by tarantool.roles.*.runtimeClassName
+  runtimeClassName: ""
+  # Alternative scheduler for pods, overrides by tarantool.roles.*.schedulerName
+  schedulerName: ""
+  # Tolerations for application pods assignment, will be merged with tarantool.roles.*.tolerations
+  tolerations: []
+  # Topology Spread Constraints for pod assignment, will be merged with tarantool.roles.*.      topologySpreadConstraints
+  topologySpreadConstraints: []
+  # Working directory for all cartridge containers, overrides by tarantool.roles.*.workingDir
+  workingDir: ""
+  # Command for all cartridge containers, overrides by tarantool.roles.*.command
+  command: []
+  # Command arguments for all cartridge containers, overrides by tarantool.roles.*.args
+  args: []
+  # Lifecycle for the container to automate configuration before or after startup, will be merged with tarantool.roles.*.lifecycle
+  lifecycle: {}
+  # Security context configuration for cartridge containers, overrides by tarantool.roles.*.  containerSecurityContext
+  containerSecurityContext:
+    enabled: false
+  foreignLeader: ""
+  # Failover configuration
+  failover:
+    mode: "disabled"
+    timeout: 5
+    fencing: false
+    fencingTimeout: 10
+    fencingPause: 2
+    stateProvider: "etcd2"
+    etcd2:
+      lockDelay: 20
+      endpoints: []
+      username: "root"
+      password: ""
+    stateboard:
+      uri: ""
+      password: ""
+  # Roles config
+  # Role is a resources that represent group of replicaset with custom config and set of vshard roles
+  roles:
+    # You can skip lots of fields during describe your role, where is a whole reference at `router` role definition,
+    # `storage` it's just a short example
+    - name: storage
+      replicasets: 2
+      replicas: 2
+      vshard:
+        weight: 100
+        roles:
+          - app.roles.storage
+      persistence:
+        enabled: true
+        spec:
+          resources:
+            requests:
+              storage: 2Gi
+      service:
+        annotations: {}
+    - # Name of role, required field
+      name: router
+      # Count of replicasets in that role, each replicaset is a statefulset, required field
+      replicasets: 2
+      # Count of replicas in that role, required field
+      replicas: 1
+      # Configuration of shard for that role, required
+      # see: https://www.tarantool.io/ru/doc/latest/reference/reference_rock/vshard/
+      vshard:
+        # Make all instances writable
+        # see: https://www.tarantool.io/ru/doc/latest/book/cartridge/cartridge_api/modules/cartridge/#replicasetinfo
+        allRw: true
+        # Weight of replicasets
+        weight: 1
+        # Vshard roles list
+        roles:
+          - failover-coordinator
+          - app.roles.router
+      # Persistence configuration for role
+      persistence:
+        enabled: true
+        annotations: [ ]
+        # Spec of volume claim template
+        spec:
+          storageClassName: ""
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: 1Gi
+      # Override for tarantool.image, allows to use custom image for role
+      image: {}
+      # Override for tarantool.minReadySeconds
+      minReadySeconds: 0
+      # Override for tarantool.memtxMemory
+      memtxMemory: ""
+      # Override for tarantool.probeUriTimeout
+      probeUriTimeout: ""
+      # Override for tarantool.ports
+      ports: {}
+      # Additional annotations for all objects create for that role
+      annotations: {}
+      # Extra volume claim templates for each statefulset of role
+      extraVolumeClaimTemplates: []
+      # Extra volumes for each pod of each statefulset of role
+      extraVolumes: []
+      # Extra volume mounts for each cartridge container of each statefulset of role
+      extraVolumeMounts: []
+      ## Extra pod annotations
+      podAnnotations: {}
+      # Override for tarantool.terminationGracePeriodSeconds
+      terminationGracePeriodSeconds: ""
+      # Security context for pod, override tarantool.securityContext
+      # see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+      securityContext: {}
+      # Affinity/anti-affinity policy for all statefulset, override tarantool.affinity
+      initContainers: []
+      # if true when tarantool.initContainers will not be applied to that role
+      initContainersOverwrite: false
+      # Cartridge containers' resources, override tarantool.resources
+      # see: https://kubernetes.io/docs/user-guide/compute-resources/
+      # Example:
+      # resources:
+      #   requests:
+      #     cpu: "0.25"
+      #     memory: "200Mi"
+      #   limits:
+      #     cpu: "0.25"
+      #     memory: "200Mi"
+      resources: {}
+      # Override for tarantool.livenessProbe
+      livenessProbe: {}
+      # Override for tarantool.readinessProbe
+      readinessProbe: {}
+      # Override for tarantool.startupProbe
+      startupProbe: {}
+      # Override for tarantool.customLivenessProbe
+      customLivenessProbe: {}
+      # Override for tarantool.customReadinessProbe
+      customReadinessProbe: {}
+      # Override for tarantool.customStartupProbe
+      customStartupProbe: {}
+      # Additional environment values for cartridge containers of role
+      # extraEnv:
+      #   - name: MY_ENV_VAR
+      #     value: env_var_value
+      extraEnv: []
+      # Additional extraFrom values for all cartridge containers
+      extraEnvFrom: []
+      # Override for tarantool.serviceAccountName
+      serviceAccountName: ""
+      # Override for tarantool.automountServiceAccountToken
+      automountServiceAccountToken: ""
+      # Override for tarantool.restartPolicy
+      restartPolicy: ""
+      # Override for tarantool.runtimeClassName
+      runtimeClassName: ""
+      # Override for tarantool.schedulerName
+      schedulerName: ""
+      # Tolerations for application pods assignment, will be merged with tarantool.tolerations
+      tolerations: []
+      # Topology Spread Constraints for pod assignment, will be merged with tarantool.topologySpreadConstraints
+      topologySpreadConstraints: []
+      # Override for tarantool.workingDir
+      workingDir: ""
+      # Override for tarantool.command
+      command: []
+      # Override for tarantool.args
+      args: []
+      # Lifecycle for the container to automate configuration before or after startup, will be merged with tarantool.lifecycle
+      lifecycle: {}
+      # Security context for pod, override tarantool.securityContext
+      # see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+      containerSecurityContext: {}
+      # Configuration of service for that role
+      service:
+        # Service type
+        type: ClusterIP
+        # Service ports configuration
+        # fixme: template it, defaults to .Values.tarantool.ports
+        ports:
+          http: 8081
+          tarantool: 3301
+        # Service Cluster IP
+        # clusterIP: None
+        clusterIP: ""
+        # Service Load Balancer IP
+        # see: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+        loadBalancerIP: ""
+        # Service Load Balancer sources
+        # see: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+        loadBalancerSourceRanges: []
+        # Service external traffic policy
+        # see: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+        externalTrafficPolicy: Cluster
+        # Additional custom annotations for service
+        annotations: {}
+        # Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+        # If "ClientIP", consecutive client requests will be directed to the same Pod
+        # see: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+        sessionAffinity: None
+        # Additional settings for the sessionAffinity
+        sessionAffinityConfig: {}
+        # sessionAffinityConfig:
+        #   clientIP:
+        #     timeoutSeconds: 300
+
+# Sidecar configuration
+sidecar:
+  image:
+    repository: registry.try.tarantool.io/tarantool-operator-sidecar
+    tag: 0.2.0-alpha1
+    pullPolicy: IfNotPresent
+  # Sidecar containers' resources
+  # see: https://kubernetes.io/docs/user-guide/compute-resources/
+  # Example:
+  # resources:
+  #   requests:
+  #     cpu: "0.25"
+  #     memory: "200Mi"
+  #   limits:
+  #     cpu: "0.25"
+  #     memory: "200Mi"
+  resources: {}
+  ports:
+    http: 8080
+  # Extra options for sidecars containers' liveness probe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  livenessProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+  # Extra options for sidecars containers' readiness probe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 2
+    failureThreshold: 5
+  # Extra options for sidecars containers' startupProbe probe
+  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
+  # Custom livenessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customLivenessProbe
+  customLivenessProbe: {}
+  # Custom readinessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customReadinessProbe
+  customReadinessProbe: {}
+  # Custom startupProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customStartupProbe
+  customStartupProbe: {}
+  # Additional environment values for cartridge containers of role
+  # extraEnv:
+  #   - name: MY_ENV_VAR
+  #     value: env_var_value
+  extraEnv: []
+  # Additional extraFrom values for all cartridge containers
+  extraEnvFrom: []
+  # Working directory for all sidecar containers
+  workingDir: ""
+  # Command for all sidecar containers
+  command: []
+  # Command arguments for all sidecar containers
+  args: []
+  # Lifecycle for the container to automate configuration before or after startup
+  lifecycle: {}
+  # Security context configuration for sidecar containers
+  securityContext:
+    enabled: false
+
+# Configuration for docker image registries' credentials
+# Example:
+# dockerconfigjson:
+#   - address: registry.try.tarantool.io
+#     username: "admin"
+#     password: "pass"
+#   - address: your.private.docker.registry
+#     username: "user"
+#     password: "pass"
+dockerconfigjson: []
+
+# Diagnostic mode in the deployment
+diagnosticMode:
+  # Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  enabled: false
+  # Command to override all containers in the deployment
+  command:
+    - sleep
+  # Args to override all containers in the deployment
+  args:
+    - "360000"

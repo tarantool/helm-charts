@@ -1,0 +1,25 @@
+{{- range .Values.tarantool.roles }}
+{{- $service := dict }}
+{{- if .service }}
+  {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+{{- else }}
+  {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+{{- end }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" (printf "%s-test-http" .name)) | quote }}
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: hook-succeeded
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command:
+        - wget
+      args:
+        - "{{ include "chart.resource.fullname" (dict "context" $ "suffix" (.name)) }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.tarantool.ports.http }}"
+  restartPolicy: Never
+{{- end }}

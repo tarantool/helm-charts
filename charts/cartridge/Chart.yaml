@@ -1,0 +1,14 @@
+---
+apiVersion: v2
+name: cartridge
+description: A cartridge application to install in your Kubernetes cluster that uses Tarantool Operator CE.
+type: application
+version: 0.1.0
+appVersion: 2.7.6
+kubeVersion: ">=1.16-0"
+icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
+home: https://github.com/tarantool/helm-charts
+sources:
+  - https://github.com/tarantool/helm-charts
+  - https://github.com/tarantool/tarantool
+  - https://github.com/tarantool/cartridge
