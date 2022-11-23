@@ -27,7 +27,7 @@ spec:
     clusterRoles: {{ .vshard.roles | toYaml | nindent 4 }}
   replicasetTemplate:
     replicas: {{ .replicas }}
-    {{- if semverCompare ">=1.25" (include "kube.version" $) -}}
+    {{- if semverCompare ">=1.25" (include "kube.version" $) }}
     minReadySeconds: {{ .minReadySeconds | default $.Values.tarantool.minReadySeconds }}
     {{- end }}
     {{- if or .persistence.enabled .extraVolumeClaimTemplates $.Values.tarantool.extraVolumeClaimTemplates }}
