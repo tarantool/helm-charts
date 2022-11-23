@@ -49,7 +49,7 @@ updateStrategy:
   # Can be set to RollingUpdate or OnDelete
   type: RollingUpdate
 
-##Configure Tarantool Operator CE pods security context
+# Configure Tarantool Operator CE pods security context
 # see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 securityContext:
   enabled: true
