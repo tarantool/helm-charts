@@ -184,8 +184,8 @@ tarantool:
               storage: 2Gi
       service:
         annotations: {}
-    - # Name of role, required field
-      name: router
+    # Name of role, required field
+    - name: router
       # Count of replicasets in that role, each replicaset is a statefulset, required field
       replicasets: 2
       # Count of replicas in that role, required field
@@ -205,7 +205,7 @@ tarantool:
       # Persistence configuration for role
       persistence:
         enabled: true
-        annotations: [ ]
+        annotations: []
         # Spec of volume claim template
         spec:
           storageClassName: ""
