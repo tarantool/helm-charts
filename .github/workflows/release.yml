@@ -1,9 +1,13 @@
 name: Release Charts
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Lint and Test Charts
     branches:
       - master
+    types:
+      - completed
 
 jobs:
   release:
