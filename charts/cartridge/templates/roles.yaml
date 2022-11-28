@@ -1,0 +1,263 @@
+{{- range .Values.tarantool.roles }}
+{{- $validationContext := (dict "context" $ "role" .) }}
+{{- include "validation.memtxMemory" $validationContext }}
+{{- include "validation.raft" $validationContext }}
+---
+apiVersion: tarantool.io/v1alpha2
+kind: Role
+metadata:
+  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
+  labels: {{- include "chart.labels" $ | nindent 4 }}
+  {{- if or $.Values.annotations .annotations }}
+  annotations:
+    {{- if $.Values.annotations }}
+      {{- tpl ($.Values.annotations | toYaml) $ | nindent 4 }}
+    {{- end }}
+    {{- if .annotations }}
+      {{- tpl (.annotations | toYaml) $ | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  {{- if .vshard.allRw }}
+  allRw: true
+  {{- end }}
+  replicasets: {{ .replicasets }}
+  vshard:
+    weight: {{ .vshard.weight | int }}
+    clusterRoles: {{ .vshard.roles | toYaml | nindent 4 }}
+  replicasetTemplate:
+    replicas: {{ .replicas }}
+    {{- if semverCompare ">=1.25" (include "kube.version" $) }}
+    minReadySeconds: {{ .minReadySeconds | default $.Values.tarantool.minReadySeconds }}
+    {{- end }}
+    {{- if or .persistence.enabled .extraVolumeClaimTemplates $.Values.tarantool.extraVolumeClaimTemplates }}
+    volumeClaimTemplates:
+      {{- if .persistence.enabled }}
+      - metadata:
+          name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
+          {{- if or $.Values.annotations .persistence.annotations }}
+          annotations:
+            {{- if .persistence.annotations }}
+              {{- tpl (.persistence.annotations | toYaml) $ | nindent 12 }}
+            {{- end }}
+            {{- if $.Values.annotations }}
+              {{- tpl ($.Values.annotations | toYaml) $ | nindent 12 }}
+            {{- end }}
+          {{- end }}
+        spec:
+          {{- tpl (omit .persistence.spec "storageClassName" "accessModes" | toYaml) $ | nindent 10}}
+          {{- if or .persistence.spec.storageClassName $.Values.storageClass }}
+          storageClassName: {{ .persistence.spec.storageClassName | default $.Values.storageClass }}
+          {{- end }}
+          {{- if .persistence.spec.accessModes }}
+          accessModes: {{ tpl (.persistence.spec.accessModes | toYaml) $ | nindent 12 }}
+          {{- else }}
+          accessModes:
+            - ReadWriteOnce
+          {{- end }}
+      {{- end }}
+      {{- if .extraVolumeClaimTemplates }}
+        {{- include "volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" .extraVolumeClaimTemplates) | indent 4 }}
+      {{- end }}
+      {{- if $.Values.tarantool.extraVolumeClaimTemplates }}
+        {{- include "volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" $.Values.tarantool.extraVolumeClaimTemplates) | indent 4 }}
+      {{- end }}
+    {{- end }}
+    podTemplate:
+      metadata:
+        labels:
+          {{- include "chart.labels" $ | nindent 10 }}
+          tarantool.io/role-name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
+        {{- if or .podAnnotations (or $.Values.annotations $.Values.tarantool.podAnnotations) }}
+        annotations:
+            {{- if $.Values.annotations }}
+              {{- tpl ($.Values.annotations | toYaml) $ | nindent 10 }}
+            {{- end }}
+            {{- if $.Values.tarantool.podAnnotations }}
+              {{- tpl ($.Values.tarantool.podAnnotations | toYaml) $ | nindent 10 }}
+            {{- end }}
+            {{- if .podAnnotations }}
+              {{- tpl (.podAnnotations | toYaml) $ | nindent 10 }}
+            {{- end }}
+        {{- end }}
+      spec:
+        {{- if and (not (kindIs "invalid" .terminationGracePeriodSeconds)) (not (kindIs "string" .terminationGracePeriodSeconds)) }}
+          {{- if .terminationGracePeriodSeconds }}
+        terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds }}
+          {{- end }}
+        {{- else if $.Values.tarantool.terminationGracePeriodSeconds }}
+        terminationGracePeriodSeconds: {{ $.Values.tarantool.terminationGracePeriodSeconds }}
+        {{- end }}
+        dnsConfig:
+          options:
+            - name: ndots
+              value: "1"
+        {{- $securityContext := deepCopy $.Values.tarantool.securityContext }}
+        {{- if .securityContext }}
+            {{- $securityContext = mergeOverwrite $securityContext .securityContext }}
+        {{- end -}}
+        {{- if $securityContext.enabled }}
+        securityContext: {{ tpl (omit $securityContext "enabled" | toYaml) $ | nindent 10 }}
+        {{- end }}
+        {{- if $.Values.dockerconfigjson }}
+        imagePullSecrets:
+          - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "image-pull") | quote }}
+        {{- end }}
+        volumes:
+          - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
+            emptyDir: {}
+          {{- if $.Values.tarantool.extraVolumes }}
+            {{- tpl ($.Values.tarantool.extraVolumes | toYaml) $ | nindent 10 }}
+          {{- end }}
+          {{- if .extraVolumes }}
+            {{- tpl (.extraVolumes | toYaml) $ | nindent 10 }}
+          {{- end }}
+        {{- if or .initContainers (and (not .initContainersOverwrite) $.Values.tarantool.initContainers) }}
+        initContainers:
+          {{- if and (not .initContainersOverwrite) $.Values.tarantool.initContainers }}
+            {{- tpl ($.Values.tarantool.initContainers | toYaml) $ | nindent 10 }}
+          {{- end }}
+          {{- if .initContainers }}
+            {{- tpl (.initContainers | toYaml) $ | nindent 10 }}
+          {{- end }}
+        {{- end }}
+        containers:
+          - name: cartridge
+            {{- $image := deepCopy $.Values.tarantool.image }}
+            {{- if .image }}
+              {{- $image = mergeOverwrite $image .image }}
+            {{- end }}
+            image: "{{ $image.repository }}:{{ $image.tag }}"
+            imagePullPolicy: {{ $image.pullPolicy }}
+            volumeMounts:
+              - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
+                mountPath: {{ $.Values.tarantool.runDir | quote }}
+              {{- if .persistence.enabled }}
+              - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
+                mountPath: {{ $.Values.tarantool.workDir | quote }}
+              {{- end }}
+            {{- $resources := .resources | default $.Values.tarantool.resources }}
+            {{- if $resources }}
+            resources: {{ $resources | toYaml | nindent 14 }}
+            {{- else }}
+            resources: {}
+            {{- end }}
+            ports:
+              - containerPort: {{ $.Values.tarantool.ports.http }}
+                protocol: TCP
+                name: http
+              - containerPort: {{ $.Values.tarantool.ports.tarantool }}
+                protocol: TCP
+                name: tarantool-tcp
+              - containerPort: {{ $.Values.tarantool.ports.tarantool }}
+                protocol: UDP
+                name: tarantool-udp
+            {{- if not $.Values.diagnosticMode.enabled }}
+            {{- $livenessProbe := include "container.probe" (dict
+              "context" $
+              "default" (dict "tcpSocket" (dict "port" "http"))
+              "customProbe" .customLivenessProbe
+              "tarantoolCustomProbe" $.Values.tarantool.customLivenessProbe
+              "probe" .livenessProbe
+              "tarantoolProbe" $.Values.tarantool.livenessProbe
+            ) -}}
+            {{- if $livenessProbe }}
+            livenessProbe: {{- $livenessProbe | nindent 14 }}
+            {{- end }}
+            {{- $readinessProbe := include "container.probe" (dict
+              "context" $
+              "default" (dict "tcpSocket" (dict "port" "http"))
+              "customProbe" .customReadinessProbe
+              "tarantoolCustomProbe" $.Values.tarantool.customReadinessProbe
+              "probe" .readinessProbe
+              "tarantoolProbe" $.Values.tarantool.readinessProbe
+            ) }}
+            {{- if $readinessProbe }}
+            readinessProbe: {{- $readinessProbe | nindent 14 }}
+            {{- end }}
+            {{- $startupProbe := include "container.probe" (dict
+              "context" $
+              "default" (dict "tcpSocket" (dict "port" "http"))
+              "customProbe" .customStartupProbe
+              "tarantoolCustomProbe" $.Values.tarantool.customStartupProbe
+              "probe" .startupProbe
+              "tarantoolProbe" $.Values.tarantool.startupProbe
+            ) }}
+            {{- if $startupProbe }}
+            startupProbe: {{- $startupProbe | nindent 14 }}
+            {{- end }}
+            {{- end }}
+            env:
+              {{- include "tarantool.environment.app" (dict "role" . "context" $) | indent 12 }}
+              {{- if or $.Values.tarantool.extraEnv .extraEnv }}
+                {{- include "tarantool.environment.extra" (dict "extra" (list .extraEnv $.Values.tarantool.extraEnv) "context" $) | indent 14 }}
+              {{- end }}
+            envFrom:
+              - secretRef:
+                  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
+              {{- if $.Values.tarantool.extraEnvFrom }}
+                {{- tpl ($.Values.tarantool.extraEnvFrom | toYaml) $ | nindent 14 }}
+              {{- end }}
+              {{- if .extraEnvFrom }}
+                {{- tpl (.extraEnvFrom | toYaml) $ | nindent 14 }}
+              {{- end }}
+            {{- if or .workingDir $.Values.tarantool.workingDir }}
+            workingDir: {{ .workingDir | default $.Values.tarantool.workingDir }}
+            {{- end }}
+            {{- if not $.Values.diagnosticMode.enabled }}
+              {{- if or .command $.Values.tarantool.command }}
+            command: {{ .command | default $.Values.tarantool.command | toYaml | nindent 14 }}
+              {{- end }}
+              {{- if or .args $.Values.tarantool.args }}
+            args: {{ .args | default $.Values.tarantool.args | toYaml | nindent 14 }}
+              {{- end }}
+            {{- else }}
+            command: {{ $.Values.diagnosticMode.command | toYaml | nindent 14 }}
+            args: {{ $.Values.diagnosticMode.args | toYaml | nindent 14 }}
+            {{- end }}
+            {{- if or .lifecycle $.Values.tarantool.lifecycle }}
+            lifecycle: {{  tpl ((mergeOverwrite $.Values.tarantool.lifecycle .lifecycle) | toYaml) $ | nindent 14 }}
+            {{- end }}
+            {{- $containerSecurityContext := deepCopy $.Values.tarantool.containerSecurityContext }}
+            {{- if .containerSecurityContext }}
+              {{- $containerSecurityContext = mergeOverwrite $containerSecurityContext .containerSecurityContext }}
+            {{- end -}}
+            {{- if $containerSecurityContext.enabled }}
+            securityContext: {{ tpl (omit $containerSecurityContext "enabled" | toYaml) $ | nindent 14 }}
+            {{- end }}
+        {{- if or (kindIs "string" .automountServiceAccountToken) (kindIs "invalid" .automountServiceAccountToken) }}
+        automountServiceAccountToken: {{ $.Values.tarantool.automountServiceAccountToken | default false }}
+        {{- else }}
+        automountServiceAccountToken: {{ .automountServiceAccountToken | default false }}
+        {{- end }}
+        {{- if or .serviceAccountName $.Values.tarantool.serviceAccountName}}
+        serviceAccountName: {{ .serviceAccountName | default $.Values.tarantool.serviceAccountName }}
+        {{- end }}
+        {{- if or .restartPolicy $.Values.tarantool.restartPolicy}}
+        restartPolicy: {{ .restartPolicy | default $.Values.tarantool.restartPolicy }}
+        {{- end }}
+        {{- if or .runtimeClassName $.Values.tarantool.runtimeClassName}}
+        runtimeClassName: {{ .runtimeClassName | default $.Values.tarantool.runtimeClassName | quote }}
+        {{- end }}
+        {{- if or .schedulerName $.Values.tarantool.schedulerName}}
+        schedulerName: {{ .schedulerName | default $.Values.tarantool.schedulerName | quote }}
+        {{- end }}
+        {{- if or .tolerations $.Values.tarantool.tolerations }}
+        tolerations:
+          {{- if $.Values.tarantool.tolerations }}
+            {{- tpl ($.Values.tarantool.tolerations | toYaml) $ | nindent 10 }}
+          {{- end }}
+          {{- if .tolerations }}
+            {{- tpl (.tolerations | toYaml) $ | nindent 10 }}
+          {{- end }}
+        {{- end }}
+        {{- if or .topologySpreadConstraints $.Values.tarantool.topologySpreadConstraints }}
+        topologySpreadConstraints:
+          {{- if $.Values.tarantool.topologySpreadConstraints }}
+            {{- tpl ($.Values.tarantool.topologySpreadConstraints | toYaml) $ | nindent 10 }}
+          {{- end }}
+          {{- if .topologySpreadConstraints }}
+            {{- tpl (.topologySpreadConstraints | toYaml) $ | nindent 10 }}
+          {{- end }}
+        {{- end }}
+{{- end }}

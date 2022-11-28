@@ -1,0 +1,32 @@
+{{- range .Values.tarantool.roles }}
+{{- $service := dict }}
+{{- if .service }}
+  {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+{{- else }}
+  {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+{{- end }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" (printf "%s-test-tcp" .name)) | quote }}
+  annotations:
+    helm.sh/hook: test-success
+    helm.sh/hook-delete-policy: hook-succeeded
+spec:
+  containers:
+    - name: tarantoolctl
+      image: tarantool/tarantool:2.10.2-centos7
+      env:
+        - name: TARANTOOL_USER
+          value: {{ $.Values.tarantool.auth.user | default "admin" | quote }}
+      envFrom:
+        - secretRef:
+            name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
+      command:
+        - bash
+      args:
+        - "-c"
+        - "echo 'return 0' | tarantoolctl connect ${TARANTOOL_USER}:${TARANTOOL_PASSWORD}@{{ include "chart.resource.fullname" (dict "context" $ "suffix" (.name)) }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.tarantool.ports.tarantool }}"
+  restartPolicy: Never
+{{- end }}

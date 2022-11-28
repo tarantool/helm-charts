@@ -1,0 +1,49 @@
+{{- include "validation.bucketCount" . -}}
+apiVersion: tarantool.io/v1alpha2
+kind: Cluster
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels: {{- include "chart.labels" . | nindent 4 }}
+  {{- if .Values.annotations }}
+  annotations: {{- tpl (.Values.annotations | toYaml) $ | nindent 4 }}
+  {{- end }}
+spec:
+  domain: {{ .Values.clusterDomain }}
+  listenPort: {{ .Values.tarantool.ports.tarantool }}
+  foreignLeader: {{ .Values.tarantool.foreignLeader }}
+  failover:
+    mode: {{ .Values.tarantool.failover.mode | quote }}
+    {{- if not (eq .Values.tarantool.failover.mode "disabled") }}
+    {{- include "validation.failover.timeout" . }}
+    {{- include "validation.failover.etcd2.lockDelay" . }}
+    timeout: {{ .Values.tarantool.failover.timeout | float64 }}
+    {{- if eq .Values.tarantool.failover.mode "stateful" }}
+    fencing: {{ .Values.tarantool.failover.fencing }}
+    fencingPause: {{ .Values.tarantool.failover.fencingPause | float64}}
+    fencingTimeout: {{ .Values.tarantool.failover.fencingTimeout | float64 }}
+    {{- if eq .Values.tarantool.failover.mode "stateful" }}
+    stateProvider:  {{ .Values.tarantool.failover.stateProvider }}
+    {{- if eq .Values.tarantool.failover.stateProvider "etcd2" }}
+    etcd2:
+      endpoints: {{ .Values.tarantool.failover.etcd2.endpoints | toYaml | nindent 6 }}
+      username: {{ .Values.tarantool.failover.etcd2.username }}
+      prefix: {{ include "failover.etcd2.prefix" . }}
+      lockDelay: {{ .Values.tarantool.failover.etcd2.lockDelay | float64 }}
+      {{- if .Values.tarantool.failover.etcd2.password }}
+      password:
+        namespace: "{{ .Release.Namespace }}"
+        name: {{ include "chart.resource.fullname" (dict "context" . "suffix" "etcd2") }}
+      {{- end }}
+    {{- end -}}
+    {{- if eq .Values.tarantool.failover.stateProvider "stateboard" }}
+    stateboard:
+      uri: {{ .Values.tarantool.failover.stateboard.uri | toYaml | nindent 6 }}
+      {{- if .Values.tarantool.failover.stateboard.password }}
+      password:
+        namespace: "{{ .Release.Namespace }}"
+        name: {{ include "chart.resource.fullname" (dict "context" . "suffix" "stateboard") }}
+      {{- end }}
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}

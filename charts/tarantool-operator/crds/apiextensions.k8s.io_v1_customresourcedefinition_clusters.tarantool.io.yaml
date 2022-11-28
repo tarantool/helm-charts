@@ -1,0 +1,197 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: clusters.tarantool.io
+spec:
+  group: tarantool.io
+  names:
+    kind: Cluster
+    listKind: ClusterList
+    plural: clusters
+    singular: cluster
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              selector:
+                properties:
+                  matchExpressions:
+                    items:
+                      properties:
+                        key:
+                          type: string
+                        operator:
+                          type: string
+                        values:
+                          items:
+                            type: string
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    type: object
+                type: object
+                x-kubernetes-map-type: atomic
+            type: object
+          status:
+            properties:
+              state:
+                type: string
+            type: object
+        type: object
+    served: false
+    storage: false
+    subresources:
+      status: {}
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.leader
+      name: Leader
+      type: string
+    - jsonPath: .status.bootstrapped
+      name: Bootstrapped
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              domain:
+                default: cluster.local
+                type: string
+              failover:
+                properties:
+                  etcd2:
+                    properties:
+                      endpoints:
+                        items:
+                          type: string
+                        type: array
+                      lockDelay:
+                        default: 10
+                        format: int32
+                        type: integer
+                      password:
+                        properties:
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      prefix:
+                        type: string
+                      username:
+                        type: string
+                    required:
+                    - username
+                    type: object
+                  fencing:
+                    default: false
+                    type: boolean
+                  fencingPause:
+                    default: 2
+                    format: int32
+                    type: integer
+                  fencingTimeout:
+                    default: 10
+                    format: int32
+                    type: integer
+                  mode:
+                    default: disabled
+                    enum:
+                    - disabled
+                    - eventual
+                    - stateful
+                    - raft
+                    type: string
+                  stateProvider:
+                    enum:
+                    - etcd2
+                    - stateboard
+                    type: string
+                  stateboard:
+                    properties:
+                      password:
+                        properties:
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      uril:
+                        type: string
+                    required:
+                    - uril
+                    type: object
+                  timeout:
+                    default: 20
+                    format: int32
+                    type: integer
+                type: object
+              foreignLeader:
+                type: string
+              listenPort:
+                default: 3301
+                format: int32
+                type: integer
+            required:
+            - failover
+            type: object
+          status:
+            properties:
+              bootstrapped:
+                default: false
+                type: boolean
+              leader:
+                type: string
+              phase:
+                default: Pending
+                type: string
+            required:
+            - bootstrapped
+            - phase
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

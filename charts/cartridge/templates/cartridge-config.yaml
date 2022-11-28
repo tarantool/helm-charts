@@ -1,0 +1,12 @@
+{{- if .Values.tarantool.config }}
+apiVersion: tarantool.io/v1alpha2
+kind: CartridgeConfig
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels: {{- include "chart.labels" . | nindent 4 }}
+  {{- if .Values.annotations }}
+  annotations: {{- tpl (.Values.annotations | toYaml) $ | nindent 4 }}
+  {{- end }}
+spec:
+  data: | {{- .Values.tarantool.config | toYaml | nindent 4 }}
+{{- end -}}
