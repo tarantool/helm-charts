@@ -3,7 +3,7 @@ apiVersion: v2
 name: tarantool-operator
 description: Tarantool Operator Community Edition
 type: application
-version: 0.0.0
+version: 1.0.0-rc1
 appVersion: 1.0.0-rc1
 kubeVersion: ">=1.16-0"
 icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
