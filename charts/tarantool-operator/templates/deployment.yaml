@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels: {{- include "chart.labels" . | nindent 4 }}
+  {{- if .Values.annotations }}
+  annotations: {{- tpl (.Values.annotations | toYaml) $ | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  {{- if .Values.updateStrategy }}
+  strategy: {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "chart.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- tpl (.Values.podLabels | toYaml) $ | nindent 8 }}
+        {{- end }}
+      {{- if .Values.podAnnotations }}
+      annotations: {{- tpl (.Values.podAnnotations | toYaml) $ | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "service-account.name" . }}
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName | quote }}
+      {{- end }}
+      {{- if .Values.hostAliases }}
+      hostAliases: {{- tpl (.Values.hostAliases | toYaml) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- tpl (.Values.topologySpreadConstraints | toYaml) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- tpl (.Values.affinity | toYaml) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- tpl (.Values.nodeSelector | toYaml) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- tpl (.Values.tolerations toYaml) $ | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.securityContext.enabled }}
+      securityContext: {{- omit .Values.securityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
+      containers:
+        - name: manager
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          command:
+            - /manager
+          args:
+            - "--health-probe-bind-address=:{{ .Values.containerPorts.http }}"
+            - "--leader-elect"
+          resources: {{ .Values.resources | toYaml | nindent 12 }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- tpl ((omit .Values.livenessProbe "enabled") | toYaml) $ | nindent 12 }}
+            httpGet:
+              path: /healthz
+              port: http
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- tpl ((omit .Values.readinessProbe "enabled") | toYaml) $ | nindent 12 }}
+            httpGet:
+              path: /readyz
+              port: http
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.containerPorts.http }}
+              name: http
+              protocol: TCP
+            - containerPort: 9443
+              name: https
+              protocol: TCP

@@ -1,0 +1,67 @@
+{{- range .Values.tarantool.roles }}
+{{- $service := dict }}
+{{- if .service }}
+  {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+{{- else }}
+  {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" (printf "role-%s" .name)) }}
+  labels:
+    tarantool.io/service-kind: "role"
+    {{- include "chart.labels" $ | nindent 4 }}
+  {{- if or $.Values.annotations .annotations $service.annotations }}
+  annotations:
+    {{- if $.Values.annotations }}
+      {{- tpl ($.Values.annotations | toYaml) $ | nindent 4 }}
+    {{- end }}
+    {{- if .annotations }}
+      {{- tpl (.annotations | toYaml) $ | nindent 4 }}
+    {{- end }}
+    {{- if $service.annotations }}
+      {{- $ctx := (deepCopy $)}}
+      {{- $_ := set $ctx "role" . }}
+      {{- $__ := set $ctx "service" $service }}
+      {{- tpl ($service.annotations | toYaml) $ctx | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: {{ $service.type }}
+  {{- if (or (eq $service.type "LoadBalancer") (eq $service.type "NodePort")) }}
+  externalTrafficPolicy: {{ $service.externalTrafficPolicy | quote }}
+  {{- end }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP }}
+  {{- end }}
+  {{- if eq $service.type "LoadBalancer" }}
+  loadBalancerSourceRanges: {{ $service.loadBalancerSourceRanges }}
+  {{- end }}
+  {{- if (and (eq $service.type "LoadBalancer") (not (empty $service.loadBalancerIP))) }}
+  loadBalancerIP: {{ $service.loadBalancerIP }}
+  {{- end }}
+  {{- if $service.sessionAffinity }}
+  sessionAffinity: {{ $service.sessionAffinity }}
+  {{- end }}
+  {{- if $service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- tpl $service.sessionAffinityConfig $ | nindent 4 }}
+  {{- end }}
+  ports:
+    - port: {{ $.Values.tarantool.ports.http }}
+      protocol: TCP
+      name: http
+      targetPort: http
+    - port: {{ $.Values.tarantool.ports.tarantool }}
+      protocol: TCP
+      name: tarantool-tcp
+      targetPort: tarantool-tcp
+    - port: {{ $.Values.tarantool.ports.tarantool }}
+      protocol: UDP
+      name: tarantool-udp
+      targetPort: tarantool-tcp
+  selector:
+    {{- include "chart.matchLabels" $ | nindent 4 }}
+    tarantool.io/role-name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
+{{- end }}

@@ -1,0 +1,126 @@
+# Override chart.name template
+nameOverride: ""
+
+# Override chart.fullname template
+fullnameOverride: ""
+
+# Override Kubernetes version
+kubeVersion: ""
+
+# Labels to add to all deployed objects
+labels: {}
+
+# Annotations to add to all deployed objects
+annotations: {}
+
+# Tarantool Operator CE image
+image:
+  repository: tarantool/tarantool-operator
+  tag: 0.1.0
+  pullPolicy: IfNotPresent
+
+# Number of Tarantool Operator CE replicas to deploy
+replicas: 1
+
+# Topology Spread Constraints for pod assignment
+# see: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+topologySpreadConstraints: []
+
+# Custom scheduler
+schedulerName: ""
+
+# Tarantool Operator CE pods affinity
+# see: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+# Tarantool Operator CE pods nodeSelector
+# see: https://kubernetes.io/docs/user-guide/node-selection/
+nodeSelector: {}
+
+# Tarantool Operator CE pods tolerations
+# see: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+# Tarantool Operator CE pods' priorityClassName
+priorityClassName: ""
+
+# Deployment update strategy
+updateStrategy:
+  # Can be set to RollingUpdate or OnDelete
+  type: RollingUpdate
+
+# Configure Tarantool Operator CE pods security context
+# see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+securityContext:
+  enabled: true
+  runAsNonRoot: true
+
+# Configure Tarantool Operator CE containers security context
+# see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+containerSecurityContext:
+  enabled: true
+  allowPrivilegeEscalation: false
+
+# terminationGracePeriodSeconds in seconds, time the given to the %%MAIN_CONTAINER_NAME%% pod needs to terminate gracefully
+# see: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+terminationGracePeriodSeconds: ""
+
+# Tarantool Operator CE pods host aliases
+# seeL https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+hostAliases: []
+
+# Extra options for Tarantool Operator CE containers' liveness probe
+# see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 5
+
+# Extra options for Tarantool Operator CE containers' readiness probe
+# see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 5
+
+# Tarantool Operator CE containers resource requests and limits
+# see: https://kubernetes.io/docs/user-guide/compute-resources/
+resources:
+  limits: {}
+  requests: {}
+
+# Extra labels for Tarantool Operator CE pods
+# see: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+# Extra annotations for Tarantool Operator CE pods
+# see: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+# Tarantool Operator CE containers' ports
+containerPorts:
+  # Used for liveness and readiness probes
+  http: 8081
+
+# ServiceAccount configuration
+serviceAccount:
+  # Specifies whether a ServiceAccount should be created
+  create: true
+  # The name of the ServiceAccount to use.
+  # If not set and create is true, a name is generated using template
+  name: ""
+  # Extra annotations for ServiceAccount
+  annotations: {}
+  # Automount Kubernetes API credentials for a service account.
+  automountServiceAccountToken: true
+
+# RBAC configuration
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
