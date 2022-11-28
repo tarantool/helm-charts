@@ -31,7 +31,7 @@ app.kubernetes.io/name: {{ include "chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/part-of: tarantool
-app.kubernetes.io/component: tarantool-operator-ee
+app.kubernetes.io/component: tarantool-operator-ce
 {{- end -}}
 
 {{/*
@@ -47,5 +47,5 @@ Standard and user labels
 {{- define "chart.matchLabels" -}}
 app.kubernetes.io/name: {{ include "chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: tarantool-operator-ee
+app.kubernetes.io/component: tarantool-operator-ce
 {{- end -}}
