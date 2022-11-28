@@ -3,11 +3,14 @@ apiVersion: v2
 name: tarantool-operator
 description: Tarantool Operator Community Edition
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: 0.1.0
 kubeVersion: ">=1.16-0"
 icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
 home: https://github.com/tarantool/helm-charts
+keywords:
+  - tarantool
+  - tarantool-operator
 sources:
   - https://github.com/tarantool/helm-charts
   - https://github.com/tarantool/tarantool-operator
@@ -15,4 +18,4 @@ sources:
 maintainers:
   - name: kluevandrew
     email: andrey.klyuev@vk.team
-    url: https://kluevandrew.ru
+    url: https://www.tarantool.io

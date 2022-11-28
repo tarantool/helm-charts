@@ -23,16 +23,7 @@ jobs:
       with:
         version: v3.10.0
 
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        check-latest: true
-
     - name: Run chart-releaser
-      uses: ntwklr/nexus-helm-chart-releaser-action@v0.0.5
-      with:
-        charts_repo_url: https://nexus.ops.tarantool.io/repository/helm/
-        username: "${{ secrets.NEXUS_USERNAME }}"
-        password: "${{ secrets.NEXUS_PASSWORD }}"
+      uses: helm/chart-releaser-action@v1.4.1
       env:
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
