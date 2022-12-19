@@ -63,6 +63,10 @@ spec:
         {{- include "volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" $.Values.tarantool.extraVolumeClaimTemplates) | indent 4 }}
       {{- end }}
     {{- end }}
+    {{- $updateStrategy := (.updateStrategy | default $.Values.tarantool.updateStrategy) }}
+    updateStrategy:
+      type: {{ $updateStrategy.type | default $.Values.tarantool.updateStrategy.type }}
+      rollingUpdate: {{ ($updateStrategy.rollingUpdate | default $.Values.tarantool.updateStrategy.rollingUpdate) | toYaml | nindent 8 }}
     podTemplate:
       metadata:
         labels:

@@ -164,6 +164,14 @@ tarantool:
     stateboard:
       uri: ""
       password: ""
+  # Update strategy
+  updateStrategy:
+    # Update strategy type
+    # see: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+    type: OnDelete
+    # Rolling Updates
+    # see https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#rolling-updates
+    rollingUpdate: {}
   # Roles config
   # Role is a resources that represent group of replicaset with custom config and set of vshard roles
   roles:
@@ -214,6 +222,14 @@ tarantool:
           resources:
             requests:
               storage: 1Gi
+      # Update strategy
+      updateStrategy:
+        # Update strategy type
+        # see: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+        type: OnDelete
+        # Rolling Updates
+        # see https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#rolling-updates
+        rollingUpdate: {}
       # Override for tarantool.image, allows to use custom image for role
       image: {}
       # Override for tarantool.minReadySeconds
