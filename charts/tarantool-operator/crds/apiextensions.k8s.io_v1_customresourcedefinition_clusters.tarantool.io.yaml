@@ -110,6 +110,8 @@ spec:
                         type: integer
                       password:
                         properties:
+                          key:
+                            type: string
                           name:
                             type: string
                           namespace:
@@ -151,6 +153,8 @@ spec:
                     properties:
                       password:
                         properties:
+                          key:
+                            type: string
                           name:
                             type: string
                           namespace:
