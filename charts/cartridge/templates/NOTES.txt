@@ -1,8 +1,8 @@
 CHART NAME: {{ .Chart.Name }}
 CHART VERSION: {{ .Chart.Version }}
 APP VERSION: {{ .Chart.AppVersion }}
-CLUSTER NAME: {{ include "chart.fullname" . }}
-CLUSTER CONN: {{ .Values.tarantool.auth.user }}@{{ include "chart.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.tarantool.ports.tarantool }}
+CLUSTER NAME: {{ include "cartridge.fullname" . }}
+CLUSTER CONN: {{ .Values.tarantool.auth.user }}@{{ include "cartridge.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}:{{ .Values.tarantool.ports.tarantool }}
 
 ** Please be patient while the chart is being deployed **
 
@@ -10,14 +10,14 @@ To access Cartridge UI do the one of following steps:
     {{- range .Values.tarantool.roles }}
         {{- $service := dict }}
         {{- if .service }}
-          {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+          {{- $service = (mergeOverwrite (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
         {{- else }}
-          {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+          {{- $service = (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) }}
         {{- end }}
-    kubectl -n {{ $.Release.Namespace }} port-forward svc/{{ include "chart.resource.fullname" (dict "context" $ "suffix" (.name)) }} {{ $.Values.tarantool.ports.http }}
+    kubectl -n {{ $.Release.Namespace }} port-forward svc/{{ include "cartridge.resource.fullname" (dict "context" $ "suffix" (.name)) }} {{ $.Values.tarantool.ports.http }}
     {{- end }}
 
 {{ if or (not .Values.tarantool.auth.password) (eq .Values.tarantool.auth.password "") -}}
 To retrieve your tarantool application password for user {{ .Values.tarantool.auth.user }} do the following steps:
-    kubectl -n {{ .Release.Namespace }} get secret {{ include "chart.resource.fullname" (dict "context" . "suffix" "auth") }} -o jsonpath="{.data.TARANTOOL_PASSWORD}" | base64 --decode
+    kubectl -n {{ .Release.Namespace }} get secret {{ include "cartridge.resource.fullname" (dict "context" . "suffix" "auth") }} -o jsonpath="{.data.TARANTOOL_PASSWORD}" | base64 --decode
 {{- end -}}

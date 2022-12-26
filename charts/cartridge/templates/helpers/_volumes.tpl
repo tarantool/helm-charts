@@ -1,4 +1,4 @@
-{{- define "volumes.extraVolumeClaimTemplates" }}
+{{- define "cartridge.volumes.extraVolumeClaimTemplates" }}
   {{- $context := .context }}
   {{- range .volumeClaimTemplates }}
   - {{ tpl (omit . "spec" | toYaml) $context | nindent 4 | trim }}
