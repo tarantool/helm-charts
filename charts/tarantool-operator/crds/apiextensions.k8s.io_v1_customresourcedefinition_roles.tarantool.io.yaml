@@ -920,9 +920,10 @@ spec:
                                             required:
                                             - name
                                             type: object
-                                            x-kubernetes-map-type: atomic
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -1548,9 +1549,10 @@ spec:
                                             required:
                                             - name
                                             type: object
-                                            x-kubernetes-map-type: atomic
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -2183,9 +2185,10 @@ spec:
                                             required:
                                             - name
                                             type: object
-                                            x-kubernetes-map-type: atomic
                                           type: array
-                                          x-kubernetes-list-type: set
+                                          x-kubernetes-list-map-keys:
+                                          - name
+                                          x-kubernetes-list-type: map
                                         limits:
                                           additionalProperties:
                                             anyOf:
@@ -2869,9 +2872,10 @@ spec:
                                                         required:
                                                         - name
                                                         type: object
-                                                        x-kubernetes-map-type: atomic
                                                       type: array
-                                                      x-kubernetes-list-type: set
+                                                      x-kubernetes-list-map-keys:
+                                                      - name
+                                                      x-kubernetes-list-type: map
                                                     limits:
                                                       additionalProperties:
                                                         anyOf:
@@ -3430,9 +3434,10 @@ spec:
                                         required:
                                         - name
                                         type: object
-                                        x-kubernetes-map-type: atomic
                                       type: array
-                                      x-kubernetes-list-type: set
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     limits:
                                       additionalProperties:
                                         anyOf:
@@ -4372,9 +4377,10 @@ spec:
                                         required:
                                         - name
                                         type: object
-                                        x-kubernetes-map-type: atomic
                                       type: array
-                                      x-kubernetes-list-type: set
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     limits:
                                       additionalProperties:
                                         anyOf:
@@ -5000,9 +5006,10 @@ spec:
                                         required:
                                         - name
                                         type: object
-                                        x-kubernetes-map-type: atomic
                                       type: array
-                                      x-kubernetes-list-type: set
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     limits:
                                       additionalProperties:
                                         anyOf:
@@ -5635,9 +5642,10 @@ spec:
                                         required:
                                         - name
                                         type: object
-                                        x-kubernetes-map-type: atomic
                                       type: array
-                                      x-kubernetes-list-type: set
+                                      x-kubernetes-list-map-keys:
+                                      - name
+                                      x-kubernetes-list-type: map
                                     limits:
                                       additionalProperties:
                                         anyOf:
@@ -6321,9 +6329,10 @@ spec:
                                                     required:
                                                     - name
                                                     type: object
-                                                    x-kubernetes-map-type: atomic
                                                   type: array
-                                                  x-kubernetes-list-type: set
+                                                  x-kubernetes-list-map-keys:
+                                                  - name
+                                                  x-kubernetes-list-type: map
                                                 limits:
                                                   additionalProperties:
                                                     anyOf:
@@ -6886,9 +6895,10 @@ spec:
                                     required:
                                     - name
                                     type: object
-                                    x-kubernetes-map-type: atomic
                                   type: array
-                                  x-kubernetes-list-type: set
+                                  x-kubernetes-list-map-keys:
+                                  - name
+                                  x-kubernetes-list-type: map
                                 limits:
                                   additionalProperties:
                                     anyOf:
