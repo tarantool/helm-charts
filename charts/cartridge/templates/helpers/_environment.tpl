@@ -1,9 +1,9 @@
-{{- define "tarantool.environment.app" }}
+{{- define "cartridge.environment.app" }}
   {{- $ := .context -}}
   {{- $role := .role -}}
-  {{- $clusterName := (include "chart.fullname" $) -}}
+  {{- $clusterName := (include "cartridge.fullname" $) -}}
   {{- $memtxMemory := ($role.memtxMemory | default $.Values.tarantool.memtxMemory) -}}
-  {{- $memtxMemoryBytes := (include "tarantool.memory_quantity_to_bytes" $memtxMemory) | int64 -}}
+  {{- $memtxMemoryBytes := (include "cartridge.math.memory_quantity_to_bytes" $memtxMemory) | int64 -}}
   {{- $probeUriTimeout := ($role.probeUriTimeout | default $.Values.tarantool.probeUriTimeout) }}
   - name: TARANTOOL_INSTANCE_NAME
     valueFrom:
@@ -33,7 +33,7 @@
     value: {{ $.Values.tarantool.runDir | quote }}
 {{- end }}
 
-{{- define "tarantool.environment.extra" }}
+{{- define "cartridge.environment.extra" }}
   {{- $context := .context }}
   {{- $exist := dict }}
   {{- range $_, $list := .extra }}

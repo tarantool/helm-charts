@@ -1,18 +1,18 @@
 {{- range .Values.tarantool.roles }}
 {{- $service := dict }}
 {{- if .service }}
-  {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+  {{- $service = (mergeOverwrite (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
 {{- else }}
-  {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+  {{- $service = (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) }}
 {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" (printf "role-%s" .name)) }}
+  name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" (printf "role-%s" .name)) }}
   labels:
     tarantool.io/service-kind: "role"
-    {{- include "chart.labels" $ | nindent 4 }}
+    {{- include "cartridge.labels" $ | nindent 4 }}
   {{- if or $.Values.annotations .annotations $service.annotations }}
   annotations:
     {{- if $.Values.annotations }}
@@ -62,6 +62,6 @@ spec:
       name: tarantool-udp
       targetPort: tarantool-tcp
   selector:
-    {{- include "chart.matchLabels" $ | nindent 4 }}
-    tarantool.io/role-name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
+    {{- include "cartridge.matchLabels" $ | nindent 4 }}
+    tarantool.io/role-name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" .name) }}
 {{- end }}

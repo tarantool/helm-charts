@@ -1,7 +1,7 @@
 {{/*
 Kubernetes version
 */}}
-{{- define "kube.version" -}}
+{{- define "tarantool-operator.version" -}}
 {{- if .Values.kubeVersion }}
 {{- .Values.kubeVersion -}}
 {{- else }}
@@ -12,8 +12,8 @@ Kubernetes version
 {{/*
 Kubernetes RBAC api
 */}}
-{{- define "kube.rbac.apiVersion" -}}
-{{- if semverCompare "<1.17" (include "kube.version" .) -}}
+{{- define "tarantool-operator.rbac.apiVersion" -}}
+{{- if semverCompare "<1.17" (include "tarantool-operator.version" .) -}}
 {{- `rbac.authorization.k8s.io/v1beta1` -}}
 {{- else -}}
 {{- `rbac.authorization.k8s.io/v1` -}}

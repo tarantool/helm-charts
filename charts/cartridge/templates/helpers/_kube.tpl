@@ -1,7 +1,7 @@
 {{/*
 Kubernetes version
 */}}
-{{- define "kube.version" -}}
+{{- define "cartridge.kube.version" -}}
 {{- if .Values.kubeVersion }}
 {{- .Values.kubeVersion -}}
 {{- else }}

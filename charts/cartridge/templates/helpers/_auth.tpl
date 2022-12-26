@@ -1,13 +1,13 @@
 {{/*
 Retrive existing ot generates new tarantool password (cluster coockie)
 */}}
-{{- define "tarantool.auth.password.b64" -}}
+{{- define "cartridge.auth.password.b64" -}}
     {{- if .Values.tarantool.auth.password -}}
         {{- .Values.tarantool.auth.password | b64enc -}}
     {{- else -}}
         {{/*If password not set in values.yaml*/}}
         {{/*lookup for previous secret with password*/}}
-        {{- $fullname := (printf "%s-auth" (include "chart.fullname" . )) -}}
+        {{- $fullname := (printf "%s-auth" (include "cartridge.fullname" . )) -}}
         {{- $oldPassword := "" -}}
         {{- $oldPasswordSecret := lookup "v1" "Secret" .Release.Namespace $fullname -}}
         {{- if $oldPasswordSecret -}}

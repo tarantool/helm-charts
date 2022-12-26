@@ -1,9 +1,9 @@
 {{- if .Values.rbac.create }}
-apiVersion: {{ include "kube.rbac.apiVersion" . }}
+apiVersion: {{ include "tarantool-operator.rbac.apiVersion" . }}
 kind: Role
 metadata:
-  name: {{ include "chart.fullname" . }}
-  labels: {{- include "chart.labels" . | nindent 4 }}
+  name: {{ include "tarantool-operator.fullname" . }}
+  labels: {{- include "tarantool-operator.labels" . | nindent 4 }}
   {{- if .Values.annotations }}
   annotations: {{- tpl (.Values.annotations | toYaml) $ | nindent 4 }}
   {{- end }}

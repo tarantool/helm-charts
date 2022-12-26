@@ -1,15 +1,15 @@
 {{- range .Values.tarantool.roles }}
 {{- $service := dict }}
 {{- if .service }}
-  {{- $service = (mergeOverwrite (include "role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
+  {{- $service = (mergeOverwrite (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) .service) }}
 {{- else }}
-  {{- $service = (include "role.default.service" (dict "role" . "context" $) | fromYaml) }}
+  {{- $service = (include "cartridge.role.default.service" (dict "role" . "context" $) | fromYaml) }}
 {{- end }}
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" (printf "%s-test-tcp" .name)) | quote }}
+  name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" (printf "%s-test-tcp" .name)) | quote }}
   annotations:
     helm.sh/hook: test-success
     helm.sh/hook-delete-policy: hook-succeeded
@@ -22,11 +22,11 @@ spec:
           value: {{ $.Values.tarantool.auth.user | default "admin" | quote }}
       envFrom:
         - secretRef:
-            name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
+            name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
       command:
         - bash
       args:
         - "-c"
-        - "echo 'return 0' | tarantoolctl connect ${TARANTOOL_USER}:${TARANTOOL_PASSWORD}@{{ include "chart.resource.fullname" (dict "context" $ "suffix" (.name)) }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.tarantool.ports.tarantool }}"
+        - "echo 'return 0' | tarantoolctl connect ${TARANTOOL_USER}:${TARANTOOL_PASSWORD}@{{ include "cartridge.resource.fullname" (dict "context" $ "suffix" (.name)) }}.{{ $.Release.Namespace }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.tarantool.ports.tarantool }}"
   restartPolicy: Never
 {{- end }}

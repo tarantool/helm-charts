@@ -2,8 +2,8 @@
 apiVersion: tarantool.io/v1beta1
 kind: CartridgeConfig
 metadata:
-  name: {{ include "chart.fullname" . }}
-  labels: {{- include "chart.labels" . | nindent 4 }}
+  name: {{ include "cartridge.fullname" . }}
+  labels: {{- include "cartridge.labels" . | nindent 4 }}
   {{- if .Values.annotations }}
   annotations: {{- tpl (.Values.annotations | toYaml) $ | nindent 4 }}
   {{- end }}

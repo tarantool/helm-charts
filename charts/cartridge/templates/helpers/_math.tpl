@@ -1,4 +1,4 @@
-{{- define "tarantool.pow" -}}
+{{- define "cartridge.math.pow" -}}
 {{- $number := (.n | float64 ) -}}
 {{- $result := (.n | float64 ) -}}
 {{- $pow := .p -}}
@@ -9,7 +9,7 @@
 {{ $result }}
 {{- end -}}
 
-{{- define "tarantool.memory_quantity_to_bytes_impl" -}}
+{{- define "cartridge.math.memory_quantity_to_bytes_impl" -}}
     {{/* The serialization format is:*/}}
     {{/* <quantity>        ::= <signedNumber><suffix>*/}}
     {{/*   (Note that <suffix> may be empty, from the "" case in <decimalSI>.)*/}}
@@ -30,7 +30,7 @@
             {{- /* Exponent suffix */ -}}
             {{- $number := ((regexReplaceAll "^([+-]?[0-9.]+)[eE]{1}([-+]?[0-9]{1,})$" $value "$1") | float64) -}}
             {{- $decimalExponent := ((regexReplaceAll "^([+-]?[0-9.]+)[eE]{1}([-+]?[0-9]{1,})$" $value "$2") | atoi) -}}
-            {{- $coef := ((include "tarantool.pow" (dict "n" 10.0 "p" $decimalExponent)) | float64 ) -}}
+            {{- $coef := ((include "cartridge.math.pow" (dict "n" 10.0 "p" $decimalExponent)) | float64 ) -}}
             {{- mulf $number $coef -}}
         {{- else -}}
             {{- if regexMatch "^([+-]?[0-9.]+)(m|Ki|Mi|Gi|Ti|Pi|Ei|k|M|G|T|P|E)$" $value -}}
@@ -64,6 +64,6 @@
     {{- end -}}
 {{- end -}}
 
-{{- define "tarantool.memory_quantity_to_bytes" -}}
-{{- ((include "tarantool.memory_quantity_to_bytes_impl" .) | trim | float64 | int64 ) -}}
+{{- define "cartridge.math.memory_quantity_to_bytes" -}}
+{{- ((include "cartridge.math.memory_quantity_to_bytes_impl" .) | trim | float64 | int64 ) -}}
 {{- end -}}
