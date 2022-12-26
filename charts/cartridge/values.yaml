@@ -347,7 +347,11 @@ tarantool:
         #   clientIP:
         #     timeoutSeconds: 300
 
-# Configuration for docker image registries' credentials
+
+# External configuration for docker image registries' credentials
+imagePullSecrets: []
+
+# In-place configuration for docker image registries' credentials
 # Example:
 # dockerconfigjson:
 #   - address: registry.try.tarantool.io

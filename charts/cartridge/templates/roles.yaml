@@ -103,9 +103,16 @@ spec:
         {{- if $securityContext.enabled }}
         securityContext: {{ tpl (omit $securityContext "enabled" | toYaml) $ | nindent 10 }}
         {{- end }}
-        {{- if $.Values.dockerconfigjson }}
+        {{- if or $.Values.imagePullSecrets $.Values.dockerconfigjson }}
         imagePullSecrets:
+          {{- if $.Values.dockerconfigjson }}
           - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "image-pull") | quote }}
+          {{- end }}
+          {{- if $.Values.dockerconfigjson }}
+          {{- range $.Values.imagePullSecrets }}
+          - {{ toYaml . }}
+          {{- end }}
+          {{- end }}
         {{- end }}
         volumes:
           - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
