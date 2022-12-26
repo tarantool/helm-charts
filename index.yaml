@@ -2,6 +2,33 @@ apiVersion: v1
 entries:
   cartridge:
   - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2022-12-26T09:31:47.65080059Z"
+    description: Tarantool Cartridge application template.
+    digest: 49ea418a3629db6ce273dbb742b6c13cd2b212f8124d4f6a0a5c2dbb67a450dc
+    home: https://github.com/tarantool/helm-charts
+    icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
+    keywords:
+    - tarantool
+    - cartridge
+    - tarantool-operator
+    - tarantool-cartridge
+    kubeVersion: '>=1.16-0'
+    maintainers:
+    - email: andrey.klyuev@vk.team
+      name: kluevandrew
+      url: https://www.tarantool.io
+    name: cartridge
+    sources:
+    - https://github.com/tarantool/helm-charts
+    - https://github.com/tarantool/tarantool
+    - https://github.com/tarantool/tarantool-operator
+    - https://github.com/tarantool/cartridge
+    type: application
+    urls:
+    - https://github.com/tarantool/helm-charts/releases/download/cartridge-1.0.0-rc2/cartridge-1.0.0-rc2.tgz
+    version: 1.0.0-rc2
+  - apiVersion: v2
     appVersion: 2.7.6
     created: "2022-11-28T18:29:37.743368129Z"
     description: Tarantool Cartridge application template.
@@ -30,6 +57,30 @@ entries:
     version: 1.0.0-rc1
   tarantool-operator:
   - apiVersion: v2
+    appVersion: 1.0.0-rc2
+    created: "2022-12-26T09:31:47.80914948Z"
+    description: Tarantool Operator Community Edition
+    digest: 6e3fb61f9b1bf4eae30dc04600e7ebe7e28d9ea6d94187df1ae7d7a768e0a032
+    home: https://github.com/tarantool/helm-charts
+    icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
+    keywords:
+    - tarantool
+    - tarantool-operator
+    kubeVersion: '>=1.16-0'
+    maintainers:
+    - email: andrey.klyuev@vk.team
+      name: kluevandrew
+      url: https://www.tarantool.io
+    name: tarantool-operator
+    sources:
+    - https://github.com/tarantool/helm-charts
+    - https://github.com/tarantool/tarantool-operator
+    - https://github.com/tarantool/tarantool
+    type: application
+    urls:
+    - https://github.com/tarantool/helm-charts/releases/download/tarantool-operator-1.0.0-rc2/tarantool-operator-1.0.0-rc2.tgz
+    version: 1.0.0-rc2
+  - apiVersion: v2
     appVersion: 1.0.0-rc1
     created: "2022-11-28T18:29:37.965958179Z"
     description: Tarantool Operator Community Edition
@@ -53,4 +104,4 @@ entries:
     urls:
     - https://github.com/tarantool/helm-charts/releases/download/tarantool-operator-1.0.0-rc1/tarantool-operator-1.0.0-rc1.tgz
     version: 1.0.0-rc1
-generated: "2022-11-28T18:29:37.965966379Z"
+generated: "2022-12-26T09:31:47.809165681Z"
