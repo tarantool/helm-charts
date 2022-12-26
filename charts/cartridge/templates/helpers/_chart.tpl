@@ -1,7 +1,7 @@
 {{/*
 Name of chart
 */}}
-{{- define "chart.name" -}}
+{{- define "cartridge.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "chart.fullname" -}}
+{{- define "cartridge.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,35 +26,35 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Subresource name
 */}}
-{{- define "chart.resource.fullname" -}}
-{{- printf "%s-%s" (include "chart.fullname" .context) .suffix | trunc 63 | trimSuffix "-" }}
+{{- define "cartridge.resource.fullname" -}}
+{{- printf "%s-%s" (include "cartridge.fullname" .context) .suffix | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 
 {{/*
 Standard label
 */}}
-{{- define "chart.standard-labels" -}}
-app.kubernetes.io/name: {{ include "chart.name" . }}
+{{- define "cartridge.standard-labels" -}}
+app.kubernetes.io/name: {{ include "cartridge.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/part-of: tarantool
 app.kubernetes.io/component: tarantool
-tarantool.io/cluster-name: {{ include "chart.fullname" . }}
+tarantool.io/cluster-name: {{ include "cartridge.fullname" . }}
 {{- end -}}
 
 {{/*
 Standard and user labels
 */}}
-{{- define "chart.labels" -}}
-{{- include "chart.standard-labels" . | indent 0 }}
+{{- define "cartridge.labels" -}}
+{{- include "cartridge.standard-labels" . | indent 0 }}
 {{- if .Values.labels }}
 {{- tpl (.Values.labels | toYaml) $ | nindent 0 }}
 {{- end }}
 {{- end -}}
 
-{{- define "chart.matchLabels" -}}
-app.kubernetes.io/name: {{ include "chart.name" . }}
+{{- define "cartridge.matchLabels" -}}
+app.kubernetes.io/name: {{ include "cartridge.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: tarantool
-tarantool.io/cluster-name: {{ include "chart.fullname" . }}
+tarantool.io/cluster-name: {{ include "cartridge.fullname" . }}
 {{- end -}}

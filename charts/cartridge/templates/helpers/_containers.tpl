@@ -1,4 +1,4 @@
-{{- define "container.probe" -}}
+{{- define "cartridge.container.probe" -}}
   {{- $context := .context -}}
   {{- $defaultProbe := .default -}}
   {{- $roleCustomProbe := .customProbe -}}

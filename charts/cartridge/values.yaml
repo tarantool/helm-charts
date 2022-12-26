@@ -23,8 +23,8 @@ storageClass: ""
 tarantool:
   # The default cartridge image, overrides by tarantool.roles.*.image
   image:
-    repository: tarantool/tarantool-operator-examples-kv
-    tag: 0.0.7
+    repository: tarantool/examples-kv
+    tag: 1.0.0
     pullPolicy: IfNotPresent
   runDir: /var/run/tarantool
   workDir: /var/lib/tarantool
@@ -164,6 +164,14 @@ tarantool:
     stateboard:
       uri: ""
       password: ""
+  # Update strategy
+  updateStrategy:
+    # Update strategy type
+    # see: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+    type: OnDelete
+    # Rolling Updates
+    # see https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#rolling-updates
+    rollingUpdate: {}
   # Roles config
   # Role is a resources that represent group of replicaset with custom config and set of vshard roles
   roles:
@@ -214,6 +222,14 @@ tarantool:
           resources:
             requests:
               storage: 1Gi
+      # Update strategy
+      updateStrategy:
+        # Update strategy type
+        # see: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+        type: OnDelete
+        # Rolling Updates
+        # see https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#rolling-updates
+        rollingUpdate: {}
       # Override for tarantool.image, allows to use custom image for role
       image: {}
       # Override for tarantool.minReadySeconds
@@ -239,7 +255,7 @@ tarantool:
       # Security context for pod, override tarantool.securityContext
       # see: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
       securityContext: {}
-      # Affinity/anti-affinity policy for all statefulset, override tarantool.affinity
+      # Add init containers to pods., overrides tarantool.affinity
       initContainers: []
       # if true when tarantool.initContainers will not be applied to that role
       initContainersOverwrite: false
@@ -331,78 +347,11 @@ tarantool:
         #   clientIP:
         #     timeoutSeconds: 300
 
-# Sidecar configuration
-sidecar:
-  image:
-    repository: registry.try.tarantool.io/tarantool-operator-sidecar
-    tag: 0.2.0-alpha1
-    pullPolicy: IfNotPresent
-  # Sidecar containers' resources
-  # see: https://kubernetes.io/docs/user-guide/compute-resources/
-  # Example:
-  # resources:
-  #   requests:
-  #     cpu: "0.25"
-  #     memory: "200Mi"
-  #   limits:
-  #     cpu: "0.25"
-  #     memory: "200Mi"
-  resources: {}
-  ports:
-    http: 8080
-  # Extra options for sidecars containers' liveness probe
-  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
-  livenessProbe:
-    enabled: false
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 5
-  # Extra options for sidecars containers' readiness probe
-  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
-  readinessProbe:
-    enabled: true
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    timeoutSeconds: 5
-    successThreshold: 2
-    failureThreshold: 5
-  # Extra options for sidecars containers' startupProbe probe
-  # see: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
-  startupProbe:
-    enabled: false
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    timeoutSeconds: 5
-    successThreshold: 1
-    failureThreshold: 5
-  # Custom livenessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customLivenessProbe
-  customLivenessProbe: {}
-  # Custom readinessProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customReadinessProbe
-  customReadinessProbe: {}
-  # Custom startupProbe for cartridge containers that overrides the default one, overrides by tarantool.roles.*.customStartupProbe
-  customStartupProbe: {}
-  # Additional environment values for cartridge containers of role
-  # extraEnv:
-  #   - name: MY_ENV_VAR
-  #     value: env_var_value
-  extraEnv: []
-  # Additional extraFrom values for all cartridge containers
-  extraEnvFrom: []
-  # Working directory for all sidecar containers
-  workingDir: ""
-  # Command for all sidecar containers
-  command: []
-  # Command arguments for all sidecar containers
-  args: []
-  # Lifecycle for the container to automate configuration before or after startup
-  lifecycle: {}
-  # Security context configuration for sidecar containers
-  securityContext:
-    enabled: false
 
-# Configuration for docker image registries' credentials
+# External configuration for docker image registries' credentials
+imagePullSecrets: []
+
+# In-place configuration for docker image registries' credentials
 # Example:
 # dockerconfigjson:
 #   - address: registry.try.tarantool.io

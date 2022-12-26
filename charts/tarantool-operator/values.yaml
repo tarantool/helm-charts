@@ -16,7 +16,7 @@ annotations: {}
 # Tarantool Operator CE image
 image:
   repository: tarantool/tarantool-operator
-  tag: 1.0.0-rc1
+  tag: latest
   pullPolicy: IfNotPresent
 
 # Number of Tarantool Operator CE replicas to deploy

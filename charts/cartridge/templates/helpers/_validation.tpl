@@ -1,16 +1,16 @@
-{{- define "validation.bucketCount" -}}
+{{- define "cartridge.validation.bucketCount" -}}
     {{- if le .Values.tarantool.bucketCount 0.0 -}}
         {{- fail ".Values.bucketCount shoud be greater then 0" -}}
     {{- end -}}
 {{- end -}}
 
-{{- define "validation.failover.timeout" -}}
+{{- define "cartridge.validation.failover.timeout" -}}
     {{- if le .Values.tarantool.failover.timeout 0.0 -}}
         {{- fail ".Values.failover.timeout shoud be greater then 0" -}}
     {{- end -}}
 {{- end -}}
 
-{{- define "validation.failover.etcd2.lockDelay" -}}
+{{- define "cartridge.validation.failover.etcd2.lockDelay" -}}
     {{- if eq .Values.tarantool.failover.mode "stateful" -}}
         {{- if le .Values.tarantool.failover.etcd2.lockDelay 0.0 -}}
             {{- fail ".Values.failover.etcd2.lockDelay shoud be greater then 0" -}}
@@ -22,7 +22,7 @@
     {{- end -}}
 {{- end -}}
 
-{{- define "validation.raft" }}
+{{- define "cartridge.validation.raft" }}
     {{- $ := .context }}
     {{- $role := .role }}
     {{- if eq $.Values.tarantool.failover.mode "raft" -}}
@@ -34,12 +34,12 @@
     {{- end -}}
 {{- end }}
 
-{{- define "validation.memtxMemory" }}
+{{- define "cartridge.validation.memtxMemory" }}
     {{- $ := .context }}
     {{- $role := .role }}
     {{- $memtxMemory := $role.memtxMemory | default $.Values.tarantool.memtxMemory }}
     {{- if $memtxMemory -}}
-        {{- $memtxMemoryBytes := ((include "tarantool.memory_quantity_to_bytes" $memtxMemory) | int64) -}}
+        {{- $memtxMemoryBytes := ((include "cartridge.math.memory_quantity_to_bytes" $memtxMemory) | int64) -}}
         {{- if le $memtxMemoryBytes 0 }}
             {{- fail (printf "%s.memtxMemory must be greater than 0" $role.name) -}}
         {{- end -}}
@@ -47,7 +47,7 @@
         {{- if $resources -}}
             {{- if $resources.limits -}}
                 {{- if $resources.limits.memory -}}
-                    {{- $memoryLimit := ((include "tarantool.memory_quantity_to_bytes" $resources.limits.memory) | int64) -}}
+                    {{- $memoryLimit := ((include "cartridge.math.memory_quantity_to_bytes" $resources.limits.memory) | int64) -}}
                     {{- if ge $memtxMemoryBytes $memoryLimit -}}
                          {{- fail (printf
                             "tarantool.roles.%s.memtxMemory (current: %s) must be lover than tarantool.roles.%s.resources.limits.memory (current: %s)"

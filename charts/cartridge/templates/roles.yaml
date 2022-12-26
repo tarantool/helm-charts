@@ -1,13 +1,13 @@
 {{- range .Values.tarantool.roles }}
 {{- $validationContext := (dict "context" $ "role" .) }}
-{{- include "validation.memtxMemory" $validationContext }}
-{{- include "validation.raft" $validationContext }}
+{{- include "cartridge.validation.memtxMemory" $validationContext }}
+{{- include "cartridge.validation.raft" $validationContext }}
 ---
 apiVersion: tarantool.io/v1beta1
 kind: Role
 metadata:
-  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
-  labels: {{- include "chart.labels" $ | nindent 4 }}
+  name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" .name) }}
+  labels: {{- include "cartridge.labels" $ | nindent 4 }}
   {{- if or $.Values.annotations .annotations }}
   annotations:
     {{- if $.Values.annotations }}
@@ -27,14 +27,14 @@ spec:
     clusterRoles: {{ .vshard.roles | toYaml | nindent 4 }}
   replicasetTemplate:
     replicas: {{ .replicas }}
-    {{- if semverCompare ">=1.25" (include "kube.version" $) }}
+    {{- if semverCompare ">=1.25" (include "cartridge.kube.version" $) }}
     minReadySeconds: {{ .minReadySeconds | default $.Values.tarantool.minReadySeconds }}
     {{- end }}
     {{- if or .persistence.enabled .extraVolumeClaimTemplates $.Values.tarantool.extraVolumeClaimTemplates }}
     volumeClaimTemplates:
       {{- if .persistence.enabled }}
       - metadata:
-          name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
+          name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
           {{- if or $.Values.annotations .persistence.annotations }}
           annotations:
             {{- if .persistence.annotations }}
@@ -57,17 +57,21 @@ spec:
           {{- end }}
       {{- end }}
       {{- if .extraVolumeClaimTemplates }}
-        {{- include "volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" .extraVolumeClaimTemplates) | indent 4 }}
+        {{- include "cartridge.volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" .extraVolumeClaimTemplates) | indent 4 }}
       {{- end }}
       {{- if $.Values.tarantool.extraVolumeClaimTemplates }}
-        {{- include "volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" $.Values.tarantool.extraVolumeClaimTemplates) | indent 4 }}
+        {{- include "cartridge.volumes.extraVolumeClaimTemplates" (dict "context" $ "volumeClaimTemplates" $.Values.tarantool.extraVolumeClaimTemplates) | indent 4 }}
       {{- end }}
     {{- end }}
+    {{- $updateStrategy := (.updateStrategy | default $.Values.tarantool.updateStrategy) }}
+    updateStrategy:
+      type: {{ $updateStrategy.type | default $.Values.tarantool.updateStrategy.type }}
+      rollingUpdate: {{ ($updateStrategy.rollingUpdate | default $.Values.tarantool.updateStrategy.rollingUpdate) | toYaml | nindent 8 }}
     podTemplate:
       metadata:
         labels:
-          {{- include "chart.labels" $ | nindent 10 }}
-          tarantool.io/role-name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" .name) }}
+          {{- include "cartridge.labels" $ | nindent 10 }}
+          tarantool.io/role-name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" .name) }}
         {{- if or .podAnnotations (or $.Values.annotations $.Values.tarantool.podAnnotations) }}
         annotations:
             {{- if $.Values.annotations }}
@@ -99,12 +103,19 @@ spec:
         {{- if $securityContext.enabled }}
         securityContext: {{ tpl (omit $securityContext "enabled" | toYaml) $ | nindent 10 }}
         {{- end }}
-        {{- if $.Values.dockerconfigjson }}
+        {{- if or $.Values.imagePullSecrets $.Values.dockerconfigjson }}
         imagePullSecrets:
-          - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "image-pull") | quote }}
+          {{- if $.Values.dockerconfigjson }}
+          - name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "image-pull") | quote }}
+          {{- end }}
+          {{- if $.Values.dockerconfigjson }}
+          {{- range $.Values.imagePullSecrets }}
+          - {{ toYaml . }}
+          {{- end }}
+          {{- end }}
         {{- end }}
         volumes:
-          - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
+          - name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
             emptyDir: {}
           {{- if $.Values.tarantool.extraVolumes }}
             {{- tpl ($.Values.tarantool.extraVolumes | toYaml) $ | nindent 10 }}
@@ -130,10 +141,10 @@ spec:
             image: "{{ $image.repository }}:{{ $image.tag }}"
             imagePullPolicy: {{ $image.pullPolicy }}
             volumeMounts:
-              - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
+              - name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "socket-volume") }}
                 mountPath: {{ $.Values.tarantool.runDir | quote }}
               {{- if .persistence.enabled }}
-              - name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
+              - name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "data-volume") }}
                 mountPath: {{ $.Values.tarantool.workDir | quote }}
               {{- end }}
             {{- $resources := .resources | default $.Values.tarantool.resources }}
@@ -153,7 +164,7 @@ spec:
                 protocol: UDP
                 name: tarantool-udp
             {{- if not $.Values.diagnosticMode.enabled }}
-            {{- $livenessProbe := include "container.probe" (dict
+            {{- $livenessProbe := include "cartridge.container.probe" (dict
               "context" $
               "default" (dict "tcpSocket" (dict "port" "http"))
               "customProbe" .customLivenessProbe
@@ -164,7 +175,7 @@ spec:
             {{- if $livenessProbe }}
             livenessProbe: {{- $livenessProbe | nindent 14 }}
             {{- end }}
-            {{- $readinessProbe := include "container.probe" (dict
+            {{- $readinessProbe := include "cartridge.container.probe" (dict
               "context" $
               "default" (dict "tcpSocket" (dict "port" "http"))
               "customProbe" .customReadinessProbe
@@ -175,7 +186,7 @@ spec:
             {{- if $readinessProbe }}
             readinessProbe: {{- $readinessProbe | nindent 14 }}
             {{- end }}
-            {{- $startupProbe := include "container.probe" (dict
+            {{- $startupProbe := include "cartridge.container.probe" (dict
               "context" $
               "default" (dict "tcpSocket" (dict "port" "http"))
               "customProbe" .customStartupProbe
@@ -188,13 +199,13 @@ spec:
             {{- end }}
             {{- end }}
             env:
-              {{- include "tarantool.environment.app" (dict "role" . "context" $) | indent 12 }}
+              {{- include "cartridge.environment.app" (dict "role" . "context" $) | indent 12 }}
               {{- if or $.Values.tarantool.extraEnv .extraEnv }}
-                {{- include "tarantool.environment.extra" (dict "extra" (list .extraEnv $.Values.tarantool.extraEnv) "context" $) | indent 14 }}
+                {{- include "cartridge.environment.extra" (dict "extra" (list .extraEnv $.Values.tarantool.extraEnv) "context" $) | indent 14 }}
               {{- end }}
             envFrom:
               - secretRef:
-                  name: {{ include "chart.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
+                  name: {{ include "cartridge.resource.fullname" (dict "context" $ "suffix" "auth") | quote }}
               {{- if $.Values.tarantool.extraEnvFrom }}
                 {{- tpl ($.Values.tarantool.extraEnvFrom | toYaml) $ | nindent 14 }}
               {{- end }}

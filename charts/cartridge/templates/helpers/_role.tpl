@@ -1,4 +1,4 @@
-{{- define "role.default.service" }}
+{{- define "cartridge.role.default.service" }}
  {{- $ := .context }}
 type: ClusterIP
 clusterIP: ""
