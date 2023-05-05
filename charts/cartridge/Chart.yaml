@@ -3,7 +3,7 @@ apiVersion: v2
 name: cartridge
 description: Tarantool Cartridge application template.
 type: application
-version: 1.0.0-rc2
+version: 1.0.0-rc3
 appVersion: 1.0.0
 kubeVersion: ">=1.16-0"
 icon: https://static.tarantool.io/pub/220829-1248-ae7bca7/tarantool/images/logo-tarantool-full.svg
