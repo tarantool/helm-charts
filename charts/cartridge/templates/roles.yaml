@@ -23,6 +23,9 @@ spec:
   {{- end }}
   replicasets: {{ .replicasets }}
   vshard:
+  {{- if .vshard.groupName }}
+    vshardGroupName: {{ .vshard.groupName }}
+  {{- end }}
     weight: {{ .vshard.weight | int }}
     clusterRoles: {{ .vshard.roles | toYaml | nindent 4 }}
   replicasetTemplate:
