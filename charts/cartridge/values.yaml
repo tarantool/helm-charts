@@ -23,7 +23,7 @@ storageClass: ""
 tarantool:
   # The default cartridge image, overrides by tarantool.roles.*.image
   image:
-    repository: tarantool/examples-kv
+    repository: tarantool/example-kv
     tag: 1.0.0
     pullPolicy: IfNotPresent
   runDir: /var/run/tarantool
